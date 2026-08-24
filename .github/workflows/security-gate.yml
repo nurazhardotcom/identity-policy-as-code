@@ -40,3 +40,49 @@ jobs:
           output=$(cd pdpa-sg-clj && bb scan "$GITHUB_WORKSPACE")
           echo "$output"
           echo "$output" | grep -q "clean? true"
+
+  supply-chain-attest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: open-policy-agent/setup-opa@v2
+        with:
+          version: 1.19.1
+
+      - name: verify gate before signing anything
+        run: ./scripts/gate.sh
+
+      - name: bundle policy + fixtures
+        run: |
+          tar -czf policy-bundle-${{ github.sha }}.tar.gz policy/ fixtures/ scripts/
+          sha256sum policy-bundle-${{ github.sha }}.tar.gz > checksums.txt
+          cat checksums.txt
+
+      - name: generate build provenance (Sigstore, keyless)
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject_path: policy-bundle-${{ github.sha }}.tar.gz
+          subject_name: policy-bundle
+
+      - name: install cosign
+        uses: sigstore/cosign-installer@v3
+
+      - name: sign checksums keyless (OIDC — no stored keys)
+        run: cosign sign-blob --yes checksums.txt --bundle checksums.bundle
+
+      - name: verify signature back
+        run: cosign verify-blob --yes --insecure-ignore-tlog --bundle checksums.bundle --certificate-identity-regexp '^https://github.com/nurazhardotcom/' --certificate-oidc-issuer https://token.actions.githubusercontent.com checksums.txt
+
+      - name: publish signed artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: signed-release-${{ github.sha }}
+          path: |
+            policy-bundle-${{ github.sha }}.tar.gz
+            checksums.txt
+            checksums.bundle
