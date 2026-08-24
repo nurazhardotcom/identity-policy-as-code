@@ -66,7 +66,7 @@ jobs:
       - name: generate build provenance (Sigstore, keyless)
         uses: actions/attest-build-provenance@v2
         with:
-          subject_path: policy-bundle-${{ github.sha }}.tar.gz
+          subject-path: policy-bundle-${{ github.sha }}.tar.gz
           subject_name: policy-bundle
 
       - name: install cosign
