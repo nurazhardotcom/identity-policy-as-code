@@ -1,0 +1,11 @@
+{
+  "role_permissions": [
+    {"role": "ci-deployer", "actions": ["s3:GetObject"], "resources": ["arn:aws:s3:::build-artifacts/*"]},
+    {"role": "legacy-admin", "actions": ["*"], "resources": ["*"]},
+    {"role": "ops-oncall", "actions": ["ec2:*"], "resources": ["*"]}
+  ],
+  "inline_policies": [
+    {"principal": "svc-backup", "attached": true},
+    {"principal": "svc-reporting", "attached": false}
+  ]
+}

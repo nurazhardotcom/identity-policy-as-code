@@ -1,0 +1,10 @@
+{
+  "role_permissions": [
+    {"role": "ci-deployer", "actions": ["s3:GetObject", "s3:PutObject"], "resources": ["arn:aws:s3:::build-artifacts/*"]},
+    {"role": "ops-oncall", "actions": ["ec2:DescribeInstances", "cloudwatch:GetMetricData"], "resources": ["arn:aws:ec2:*:*:instance/*", "arn:aws:cloudwatch:*:*:alarm/*"]}
+  ],
+  "inline_policies": [
+    {"principal": "svc-backup", "attached": false},
+    {"principal": "svc-reporting", "attached": false}
+  ]
+}

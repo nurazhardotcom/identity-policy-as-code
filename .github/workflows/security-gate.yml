@@ -1,0 +1,42 @@
+name: security-gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  opa-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: open-policy-agent/setup-opa@v2
+        with:
+          version: 1.19.1
+
+      - name: policy syntax + tests + fixture gates
+        run: ./scripts/gate.sh
+
+  pdpa-secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install ripgrep + babashka
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ripgrep
+          curl -sLO https://raw.githubusercontent.com/babashka/babashka/master/install
+          chmod +x install && sudo ./install
+
+      - uses: actions/checkout@v4
+        with:
+          repository: nurazhardotcom/pdpa-sg-clj
+          path: pdpa-sg-clj
+
+      - name: scan repo for Singapore PII / secrets (NRIC, tokens)
+        run: |
+          output=$(cd pdpa-sg-clj && bb scan "$GITHUB_WORKSPACE")
+          echo "$output"
+          echo "$output" | grep -q "clean? true"
