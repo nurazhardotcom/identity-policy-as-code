@@ -76,7 +76,7 @@ jobs:
         run: cosign sign-blob --yes checksums.txt --bundle checksums.bundle
 
       - name: verify signature back
-        run: cosign verify-blob --yes --insecure-ignore-tlog --bundle checksums.bundle --certificate-identity-regexp '^https://github.com/nurazhardotcom/' --certificate-oidc-issuer https://token.actions.githubusercontent.com checksums.txt
+        run: cosign verify-blob --insecure-ignore-tlog --bundle checksums.bundle --certificate-identity-regexp '^https://github.com/nurazhardotcom/' --certificate-oidc-issuer https://token.actions.githubusercontent.com checksums.txt
 
       - name: publish signed artifacts
         uses: actions/upload-artifact@v4
