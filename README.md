@@ -1,5 +1,7 @@
 # identity-policy-as-code
 
+> **Status:** Active — maintained. See [AI_DISCLOSURE.md](AI_DISCLOSURE.md).
+
 > A deterministic security gate that reads a normalized Terraform-plan JSON
 > and **denies wildcard IAM permissions and inline policies** — enforced by
 > OPA/Rego in CI, not in a PDF.
