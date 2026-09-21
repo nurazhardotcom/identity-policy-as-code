@@ -8,6 +8,21 @@
 
 [![security-gate](https://github.com/nurazhardotcom/identity-policy-as-code/actions/workflows/security-gate.yml/badge.svg)](https://github.com/nurazhardotcom/identity-policy-as-code/actions/workflows/security-gate.yml)
 
+> **Enterprise IAM/PAM & Policy-as-Code gate.**
+> Enforces least-privilege access and automated compliance checks for
+> enterprise directory and cloud platforms.
+
+## 1. Enterprise context
+
+* **Target environment:** Enterprise hybrid / CyberArk Vault & Conjur /
+  Active Directory / OPA.
+* **Regulatory focus:** MAS TRM / SG PDPA compliance-as-code.
+* **Core function:** Replaces manual privilege auditing and risky IAM drift
+  with deterministic, version-controlled policy evaluation. The same Rego
+  source enforces both the CI gate (offline, `gate.sh`) and request-time
+  checks via `service/server.clj` (OPA as PDP, this service as PEP) —
+  one policy, two enforcement points, no drift possible.
+
 ## Why
 
 Compliance findings are history; gates are prevention. Wildcard actions
@@ -36,11 +51,23 @@ Normalized Terraform-plan / access-review output. Three rules, no exceptions:
 | wildcard resource | bare `"*"` bound to any role |
 | inline policy | `attached: true` on any principal |
 
-## Run locally
+## Run locally (1 command)
 
 ```bash
-./scripts/gate.sh        # needs opa on PATH
+./scripts/gate.sh        # needs opa on PATH — runs the full gate
 ```
+
+## Automated testing
+
+```bash
+opa check policy/        # syntax check
+opa test policy/ -v      # Rego unit suite (policy/iam_guard_test.rego)
+```
+
+`scripts/gate.sh` runs all three in order: syntax check → unit tests →
+both fixture gates (vulnerable input must be denied, clean input must be
+allowed). Exit 0 = merge allowed, exit 1 = blocked. CI (`opa-gate` job)
+runs this exact script on every push/PR.
 
 ## CI
 
