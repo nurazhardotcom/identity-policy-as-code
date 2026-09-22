@@ -16,7 +16,7 @@
 
 * **Target environment:** Enterprise hybrid / CyberArk Vault & Conjur /
   Active Directory / OPA.
-* **Regulatory focus:** MAS TRM / SG PDPA compliance-as-code.
+* **Regulatory focus:** SG PDPA compliance-as-code.
 * **Core function:** Replaces manual privilege auditing and risky IAM drift
   with deterministic, version-controlled policy evaluation. The same Rego
   source enforces both the CI gate (offline, `gate.sh`) and request-time

@@ -37,7 +37,8 @@ jobs:
 
       - name: scan repo for Singapore PII / secrets (NRIC, tokens)
         run: |
-          output=$(cd pdpa-sg-clj && bb scan "$GITHUB_WORKSPACE")
+          mv "$GITHUB_WORKSPACE/pdpa-sg-clj" /tmp/pdpa-sg-clj
+          output=$(cd /tmp/pdpa-sg-clj && bb scan "$GITHUB_WORKSPACE")
           echo "$output"
           echo "$output" | grep -q "clean? true"
 
