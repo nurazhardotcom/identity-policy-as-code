@@ -5,20 +5,20 @@ import data.iam.guard
 vulnerable_input := {
 	"role_permissions": [
 		{"role": "legacy-admin", "actions": ["*"], "resources": ["*"]},
-		{"role": "ops-oncall", "actions": ["ec2:*"], "resources": ["arn:aws:ec2:*:*:instance/*"]}
+		{"role": "ops-oncall", "actions": ["ec2:*"], "resources": ["arn:aws:ec2:*:*:instance/*"]},
 	],
 	"inline_policies": [
-		{"principal": "svc-backup", "attached": true}
-	]
+		{"principal": "svc-backup", "attached": true},
+	],
 }
 
 clean_input := {
 	"role_permissions": [
-		{"role": "ci-deployer", "actions": ["s3:GetObject"], "resources": ["arn:aws:s3:::build-artifacts/*"]}
+		{"role": "ci-deployer", "actions": ["s3:GetObject"], "resources": ["arn:aws:s3:::build-artifacts/*"]},
 	],
 	"inline_policies": [
-		{"principal": "svc-reporting", "attached": false}
-	]
+		{"principal": "svc-reporting", "attached": false},
+	],
 }
 
 test_vulnerable_fixture_denied if {
@@ -48,4 +48,29 @@ test_benign_wildcard_suffix_allowed if {
 	# arn:*-suffix scoping is fine; only the bare "*" resource is denied
 	d := guard.deny with input as {"role_permissions": [{"role": "x", "actions": ["s3:Get"], "resources": ["arn:aws:s3:::bucket/*"]}], "inline_policies": []}
 	count(d) == 0
+}
+
+test_missing_role_permissions_denied if {
+	d := guard.deny with input as {"inline_policies": []}
+	count(d) == 1
+}
+
+test_missing_inline_policies_denied if {
+	d := guard.deny with input as {"role_permissions": []}
+	count(d) == 1
+}
+
+test_empty_sections_allowed if {
+	d := guard.deny with input as {"role_permissions": [], "inline_policies": []}
+	count(d) == 0
+}
+
+test_null_role_permissions_denied if {
+	d := guard.deny with input as {"role_permissions": null, "inline_policies": []}
+	count(d) == 1
+}
+
+test_null_inline_policies_denied if {
+	d := guard.deny with input as {"role_permissions": [], "inline_policies": null}
+	count(d) == 1
 }

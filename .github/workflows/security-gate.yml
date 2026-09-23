@@ -9,9 +9,9 @@ jobs:
   opa-gate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: open-policy-agent/setup-opa@v2
+      - uses: open-policy-agent/setup-opa@34a30e8a924d1b03ce2cf7abe97250bbb1f332b5 # v2
         with:
           version: 1.19.1
 
@@ -21,7 +21,7 @@ jobs:
   pdpa-secret-scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: install ripgrep + babashka
         run: |
@@ -30,7 +30,7 @@ jobs:
           curl -sLO https://raw.githubusercontent.com/babashka/babashka/master/install
           chmod +x install && sudo ./install
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: nurazhardotcom/pdpa-sg-clj
           path: pdpa-sg-clj
@@ -49,9 +49,9 @@ jobs:
       id-token: write
       attestations: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: open-policy-agent/setup-opa@v2
+      - uses: open-policy-agent/setup-opa@34a30e8a924d1b03ce2cf7abe97250bbb1f332b5 # v2
         with:
           version: 1.19.1
 
@@ -65,13 +65,13 @@ jobs:
           cat checksums.txt
 
       - name: generate build provenance (Sigstore, keyless)
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2
         with:
           subject-path: policy-bundle-${{ github.sha }}.tar.gz
           subject_name: policy-bundle
 
       - name: install cosign
-        uses: sigstore/cosign-installer@v3
+        uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
 
       - name: sign checksums keyless (OIDC — no stored keys)
         run: cosign sign-blob --yes checksums.txt --bundle checksums.bundle
@@ -80,7 +80,7 @@ jobs:
         run: cosign verify-blob --insecure-ignore-tlog --bundle checksums.bundle --certificate-identity-regexp '^https://github.com/nurazhardotcom/' --certificate-oidc-issuer https://token.actions.githubusercontent.com checksums.txt
 
       - name: publish signed artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: signed-release-${{ github.sha }}
           path: |

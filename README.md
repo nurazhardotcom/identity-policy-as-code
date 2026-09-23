@@ -30,9 +30,9 @@ Compliance findings are history; gates are prevention. Wildcard actions
 are three structural risks that survive every review cycle — because review
 cycles end and the permissions stay.
 
-This repo makes them **merge-blocking**: two fixtures prove the gate works in
-both directions (vulnerable input denied, clean input allowed) on every push
-and pull request.
+This repo makes them **merge-blocking**: three fixtures prove the gate in all
+directions (vulnerable denied, clean allowed, malformed input denied) on
+every push and pull request.
 
 ## Input contract
 
@@ -50,6 +50,7 @@ Normalized Terraform-plan / access-review output. Three rules, no exceptions:
 | wildcard action | `"*"` in any role's action list |
 | wildcard resource | bare `"*"` bound to any role |
 | inline policy | `attached: true` on any principal |
+| missing section | absent `role_permissions` or `inline_policies` |
 
 ## Run locally (1 command)
 
@@ -60,20 +61,21 @@ Normalized Terraform-plan / access-review output. Three rules, no exceptions:
 ## Automated testing
 
 ```bash
-opa check policy/        # syntax check
-opa test policy/ -v      # Rego unit suite (policy/iam_guard_test.rego)
+opa check --strict policy/  # syntax check
+opa fmt --fail policy/      # format check (non-zero on drift)
+opa test policy/ -v         # Rego unit suite (policy/iam_guard_test.rego)
 ```
 
-`scripts/gate.sh` runs all three in order: syntax check → unit tests →
-both fixture gates (vulnerable input must be denied, clean input must be
-allowed). Exit 0 = merge allowed, exit 1 = blocked. CI (`opa-gate` job)
-runs this exact script on every push/PR.
+`scripts/gate.sh` runs all three in order: strict syntax check + format
+check → unit tests → fixture gates (vulnerable and malformed inputs must
+be denied, clean input must be allowed). Exit 0 = merge allowed, exit 1 =
+blocked. CI (`opa-gate` job) runs this exact script on every push/PR.
 
 ## CI
 
 Two jobs on every push/PR:
 
-1. **opa-gate** — syntax check, unit tests, both fixture gates (`scripts/gate.sh`)
+1. **opa-gate** — strict syntax + format check, unit tests, all fixture gates (`scripts/gate.sh`)
 2. **pdpa-secret-scan** — [pdpa-sg-clj](https://github.com/nurazhardotcom/pdpa-sg-clj)
    scans the repo for Singapore PII (NRIC checksums) and secrets; fails on any finding
 

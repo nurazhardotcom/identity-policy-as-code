@@ -1,0 +1,5 @@
+{
+  "role_permissions": [
+    {"role": "ci-deployer", "actions": ["s3:GetObject"], "resources": ["arn:aws:s3:::build-artifacts/*"]}
+  ]
+}

@@ -6,7 +6,8 @@ set -euo pipefail
 OPA="${OPA:-opa}"
 
 echo "== 1/3 policy syntax =="
-"$OPA" check policy/
+"$OPA" check --strict policy/
+"$OPA" fmt --fail policy/ > /dev/null
 
 echo "== 2/3 unit tests =="
 "$OPA" test policy/ -v
@@ -26,6 +27,14 @@ if [ "$clean_count" -eq 0 ]; then
 	echo "OK   clean fixture correctly allowed"
 else
 	echo "FAIL clean fixture denied ($clean_count false positives)"
+	exit 1
+fi
+
+malformed_count=$("$OPA" eval --format raw -i fixtures/missing-sections.tfplan.json -d policy/ 'count(data.iam.guard.deny)')
+if [ "$malformed_count" -ge 1 ]; then
+	echo "OK   malformed fixture correctly denied ($malformed_count violations)"
+else
+	echo "FAIL malformed fixture passed the gate — fail-closed rule is broken"
 	exit 1
 fi
 
