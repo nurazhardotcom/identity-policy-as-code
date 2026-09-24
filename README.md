@@ -85,7 +85,7 @@ This is the public slice of a working compliance-automation practice:
 zero-dependency CLI scanners, deterministic scoring, evidence over assertions.
 
 - Blog: [Replacing imperative scan code with Rego](https://nurazhar.com/rego-replaces-clojure-iam.html)
-- Tooling: [pdpa-sg-clj](https://github.com/nurazhardotcom/pdpa-sg-clj) · [idira-audit-clj](https://github.com/nurazhardotcom/idira-audit-clj) · [identity-control-plane](https://github.com/nurazhardotcom/identity-control-plane)
+- Tooling: [pdpa-sg-clj](https://github.com/nurazhardotcom/pdpa-sg-clj) · [pam-audit-clj](https://github.com/nurazhardotcom/pam-audit-clj) · [identity-control-plane](https://github.com/nurazhardotcom/identity-control-plane)
 
 ## License
 
