@@ -43,14 +43,18 @@ every push and pull request.
 }
 ```
 
-Normalized Terraform-plan / access-review output. Three rules, no exceptions:
+Normalized Terraform-plan / access-review output. Four rules, no exceptions:
 
 | Rule | Denies |
 |---|---|
 | wildcard action | `"*"` in any role's action list |
 | wildcard resource | bare `"*"` bound to any role |
 | inline policy | `attached: true` on any principal |
-| missing section | absent `role_permissions` or `inline_policies` |
+| missing section | absent **or** `null` `role_permissions` or `inline_policies` |
+
+An explicitly empty list (`[]`) is valid and means "none of that kind"; an
+absent or `null` section is denied, so a truncated normalizer can never read
+as clean.
 
 ## Run locally (1 command)
 
@@ -73,11 +77,14 @@ blocked. CI (`opa-gate` job) runs this exact script on every push/PR.
 
 ## CI
 
-Two jobs on every push/PR:
+Three jobs on every push/PR:
 
 1. **opa-gate** — strict syntax + format check, unit tests, all fixture gates (`scripts/gate.sh`)
 2. **pdpa-secret-scan** — [pdpa-sg-clj](https://github.com/nurazhardotcom/pdpa-sg-clj)
    scans the repo for Singapore PII (NRIC checksums) and secrets; fails on any finding
+3. **supply-chain-attest** — re-runs `scripts/gate.sh`, then bundles `policy/`, `fixtures/`
+   and `scripts/`, and produces keyless Sigstore build provenance plus a signed
+   `checksums.txt` restricted to `nurazhardotcom`
 
 ## The bigger story
 
