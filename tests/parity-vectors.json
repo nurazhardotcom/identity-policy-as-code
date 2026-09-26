@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "entrypoint": "iam/guard/deny",
+  "vectors": [
+    {
+      "id": "fixture-clean",
+      "fixture": "fixtures/clean.tfplan.json",
+      "expected": []
+    },
+    {
+      "id": "fixture-vulnerable",
+      "fixture": "fixtures/vulnerable.tfplan.json",
+      "expected": [
+        "inline IAM policy attached to principal 'svc-backup'",
+        "wildcard action granted to role 'legacy-admin'",
+        "wildcard resource bound to role 'legacy-admin'",
+        "wildcard resource bound to role 'ops-oncall'"
+      ]
+    },
+    {
+      "id": "fixture-missing-sections",
+      "fixture": "fixtures/missing-sections.tfplan.json",
+      "expected": [
+        "input missing required section 'inline_policies'"
+      ]
+    },
+    {
+      "id": "edge-wildcard-action",
+      "input": {
+        "role_permissions": [{"role": "x", "actions": ["*"], "resources": []}],
+        "inline_policies": []
+      },
+      "expected": ["wildcard action granted to role 'x'"]
+    },
+    {
+      "id": "edge-wildcard-resource",
+      "input": {
+        "role_permissions": [{"role": "x", "actions": ["s3:Get"], "resources": ["*"]}],
+        "inline_policies": []
+      },
+      "expected": ["wildcard resource bound to role 'x'"]
+    },
+    {
+      "id": "edge-inline-policy",
+      "input": {
+        "role_permissions": [],
+        "inline_policies": [{"principal": "p", "attached": true}]
+      },
+      "expected": ["inline IAM policy attached to principal 'p'"]
+    },
+    {
+      "id": "edge-benign-wildcard-suffix",
+      "input": {
+        "role_permissions": [{"role": "x", "actions": ["s3:Get"], "resources": ["arn:aws:s3:::bucket/*"]}],
+        "inline_policies": []
+      },
+      "expected": []
+    },
+    {
+      "id": "edge-missing-role-permissions",
+      "input": {"inline_policies": []},
+      "expected": ["input missing required section 'role_permissions'"]
+    },
+    {
+      "id": "edge-missing-inline-policies",
+      "input": {"role_permissions": []},
+      "expected": ["input missing required section 'inline_policies'"]
+    },
+    {
+      "id": "edge-both-sections-missing",
+      "input": {},
+      "expected": [
+        "input missing required section 'inline_policies'",
+        "input missing required section 'role_permissions'"
+      ]
+    },
+    {
+      "id": "edge-empty-sections",
+      "input": {"role_permissions": [], "inline_policies": []},
+      "expected": []
+    },
+    {
+      "id": "edge-null-role-permissions",
+      "input": {"role_permissions": null, "inline_policies": []},
+      "expected": ["input section 'role_permissions' is null"]
+    },
+    {
+      "id": "edge-null-inline-policies",
+      "input": {"role_permissions": [], "inline_policies": null},
+      "expected": ["input section 'inline_policies' is null"]
+    },
+    {
+      "id": "edge-both-sections-null",
+      "input": {"role_permissions": null, "inline_policies": null},
+      "expected": [
+        "input section 'inline_policies' is null",
+        "input section 'role_permissions' is null"
+      ]
+    },
+    {
+      "id": "edge-service-wildcard-scoped",
+      "input": {
+        "role_permissions": [{"role": "ops", "actions": ["ec2:*"], "resources": ["arn:aws:ec2:*:*:instance/*"]}],
+        "inline_policies": []
+      },
+      "expected": []
+    },
+    {
+      "id": "edge-service-wildcard-unbounded-resource",
+      "input": {
+        "role_permissions": [{"role": "ops", "actions": ["ec2:*"], "resources": ["*"]}],
+        "inline_policies": []
+      },
+      "expected": ["wildcard resource bound to role 'ops'"]
+    },
+    {
+      "id": "edge-empty-role-name-violation",
+      "input": {
+        "role_permissions": [{"role": "", "actions": ["*"], "resources": []}],
+        "inline_policies": []
+      },
+      "expected": ["wildcard action granted to role ''"]
+    },
+    {
+      "id": "edge-empty-principal-name-violation",
+      "input": {
+        "role_permissions": [],
+        "inline_policies": [{"principal": "", "attached": true}]
+      },
+      "expected": ["inline IAM policy attached to principal ''"]
+    },
+    {
+      "id": "edge-empty-role-name-bounded",
+      "input": {
+        "role_permissions": [{"role": "", "actions": ["s3:GetObject"], "resources": ["arn:aws:s3:::build-artifacts/*"]}],
+        "inline_policies": []
+      },
+      "expected": []
+    },
+    {
+      "id": "edge-duplicate-actions",
+      "input": {
+        "role_permissions": [{"role": "dup", "actions": ["*", "*"], "resources": []}],
+        "inline_policies": []
+      },
+      "expected": ["wildcard action granted to role 'dup'"]
+    },
+    {
+      "id": "edge-duplicate-resources",
+      "input": {
+        "role_permissions": [{"role": "dup", "actions": ["s3:Get"], "resources": ["*", "*"]}],
+        "inline_policies": []
+      },
+      "expected": ["wildcard resource bound to role 'dup'"]
+    },
+    {
+      "id": "edge-duplicate-identical-roles",
+      "input": {
+        "role_permissions": [
+          {"role": "dup", "actions": ["*"], "resources": []},
+          {"role": "dup", "actions": ["*"], "resources": []}
+        ],
+        "inline_policies": []
+      },
+      "expected": ["wildcard action granted to role 'dup'"]
+    },
+    {
+      "id": "edge-distinct-roles",
+      "input": {
+        "role_permissions": [
+          {"role": "a", "actions": ["*"], "resources": []},
+          {"role": "b", "actions": ["*"], "resources": []}
+        ],
+        "inline_policies": []
+      },
+      "expected": [
+        "wildcard action granted to role 'a'",
+        "wildcard action granted to role 'b'"
+      ]
+    }
+  ]
+}

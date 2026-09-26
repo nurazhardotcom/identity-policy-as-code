@@ -1,3 +1,10 @@
 .clj-kondo/.cache/
 .lsp/.cache/
 .cpcache/
+node_modules/
+build/
+*.log
+checksums.txt
+checksums.bundle
+identity-policy-source-*.tar.gz
+policy-bundle-*.tar.gz

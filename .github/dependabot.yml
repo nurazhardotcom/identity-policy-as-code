@@ -4,3 +4,12 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    ignore:
+      # The Wasm SDK is an intentional compatibility pin.  Review major
+      # upgrades together with the OPA compiler and native/Wasm parity suite.
+      - dependency-name: "@open-policy-agent/opa-wasm"
+        update-types: ["version-update:semver-major"]

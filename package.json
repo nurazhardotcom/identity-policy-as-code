@@ -1,0 +1,16 @@
+{
+  "name": "identity-policy-as-code",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Pinned OPA native and Wasm verification for the IAM guard policy",
+  "type": "module",
+  "scripts": {
+    "verify:wasm": "node scripts/verify-wasm.mjs"
+  },
+  "dependencies": {
+    "@open-policy-agent/opa-wasm": "1.10.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
